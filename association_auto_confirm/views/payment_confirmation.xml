@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="association_hide_order_qr"
+              inherit_id="website_sale.payment_confirmation_status">
+
+        <!-- Supprime la communication S000xx -->
+        <xpath expr="//div[@id='order_reference']"
+               position="replace"/>
+
+        <!-- Supprime le QR code basé sur la commande -->
+        <xpath expr="//div[@t-if='tx_sudo.provider_id.sudo().qr_code']"
+               position="replace">
+
+            <div class="alert alert-info mt-3">
+                <strong>Paiement par virement</strong>
+
+                <p class="mb-0 mt-2">
+                    Votre facture est disponible dans
+                    <strong>Mon Compte → Vos Factures</strong>.
+                </p>
+
+                <p class="mb-0">
+                    Veuillez utiliser exclusivement le QR code
+                    ou la communication structurée figurant sur la facture.
+                </p>
+            </div>
+
+        </xpath>
+
+    </template>
+
+</odoo>
