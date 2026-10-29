@@ -6,24 +6,46 @@
 
         <!-- Supprime la communication S000xx -->
         <xpath expr="//div[@id='order_reference']"
-               position="replace"/>
+               position="replace">
+        </xpath>
 
-        <!-- Supprime le QR code basé sur la commande -->
+        <!-- Remplace le QR code de la commande -->
         <xpath expr="//div[@t-if='tx_sudo.provider_id.sudo().qr_code']"
                position="replace">
 
+            <t t-set="invoice" t-value="order.invoice_ids[:1]"/>
+
             <div class="alert alert-info mt-3">
+
                 <strong>Paiement par virement</strong>
 
-                <p class="mb-0 mt-2">
-                    Votre facture est disponible dans
-                    <strong>Mon Compte → Vos Factures</strong>.
+                <p class="mt-2">
+                    Votre facture est disponible dans votre espace client. Utilisez le QR code ou renseignez la
+                    communication structurée figurant sur la facture.
                 </p>
 
-                <p class="mb-0">
-                    Veuillez utiliser exclusivement le QR code
-                    ou la communication structurée figurant sur la facture.
-                </p>
+                <t t-if="invoice">
+
+                    <p>
+                        Facture :
+                        <strong t-out="invoice.name"/>
+                    </p>
+
+                    <a t-if="invoice"
+                        t-att-href="invoice.get_portal_url()"
+                        class="btn btn-success btn-lg mb-3">
+                        📄 Consulter la facture <span t-out="invoice.name"/>
+                    </a>
+
+                </t>
+
+                <t t-else="">
+                    <a href="/my/invoices"
+                       class="btn btn-primary mb-3">
+                        Accéder à mes factures
+                    </a>
+                </t>
+
             </div>
 
         </xpath>

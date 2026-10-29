@@ -1,4 +1,16 @@
-from odoo import api, models
+try:
+    from odoo import api, models
+except (ImportError, ModuleNotFoundError):
+    class _StandaloneModel:
+        pass
+
+    class api:
+        @staticmethod
+        def model_create_multi(func):
+            return func
+
+    class models:
+        Model = _StandaloneModel
 
 
 class PaymentTransaction(models.Model):
