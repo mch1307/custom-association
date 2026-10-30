@@ -1,38 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
-    <template id="association_checkout_ui_labels" inherit_id="website.assets_frontend">
+    <template id="association_checkout_ui_labels" inherit_id="web.assets_frontend">
         <xpath expr="." position="inside">
             <script type="text/javascript">
                 document.addEventListener('DOMContentLoaded', function () {
                     function applyAssociationLabels() {
-                        const buttons = document.querySelectorAll('button[type="submit"], button.btn-primary');
-                        buttons.forEach(function (button) {
-                            const text = (button.textContent || '').trim();
-                            if (text === 'Payer maintenant') {
+                        document.querySelectorAll('button[type="submit"], button.btn-primary').forEach(function (button) {
+                            if ((button.textContent || '').trim() === 'Payer maintenant') {
                                 button.textContent = 'Confirmer la commande';
                             }
                         });
 
-                        const elements = document.querySelectorAll('span, div, h2, p, strong, label');
-                        elements.forEach(function (element) {
-                            const text = (element.textContent || '').trim();
-                            if (text === 'Paiement') {
+                        document.querySelectorAll('span, div, h2, p, strong, label').forEach(function (element) {
+                            if ((element.textContent || '').trim() === 'Paiement') {
                                 element.textContent = 'Confirmation';
                             }
                         });
                     }
 
                     applyAssociationLabels();
-
                     const observer = new MutationObserver(function () {
                         applyAssociationLabels();
                     });
-
                     observer.observe(document.body, { childList: true, subtree: true });
                 });
             </script>
         </xpath>
     </template>
-
 </odoo>
