@@ -1,11 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <template id="association_checkout_ui_labels" inherit_id="website_sale.checkout">
-        <xpath expr="//button[@type='submit']" position="replace">
-            <button type="submit" class="btn btn-primary association_checkout_ui__primary">
-                Confirmer la commande
-            </button>
+    <template id="association_checkout_ui_labels" inherit_id="website.assets_frontend">
+        <xpath expr="." position="inside">
+            <script type="text/javascript">
+                document.addEventListener('DOMContentLoaded', function () {
+                    function applyAssociationLabels() {
+                        const buttons = document.querySelectorAll('button[type="submit"], button.btn-primary');
+                        buttons.forEach(function (button) {
+                            const text = (button.textContent || '').trim();
+                            if (text === 'Payer maintenant') {
+                                button.textContent = 'Confirmer la commande';
+                            }
+                        });
+
+                        const elements = document.querySelectorAll('span, div, h2, p, strong, label');
+                        elements.forEach(function (element) {
+                            const text = (element.textContent || '').trim();
+                            if (text === 'Paiement') {
+                                element.textContent = 'Confirmation';
+                            }
+                        });
+                    }
+
+                    applyAssociationLabels();
+
+                    const observer = new MutationObserver(function () {
+                        applyAssociationLabels();
+                    });
+
+                    observer.observe(document.body, { childList: true, subtree: true });
+                });
+            </script>
         </xpath>
     </template>
 
