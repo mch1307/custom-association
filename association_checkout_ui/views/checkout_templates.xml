@@ -2,17 +2,11 @@
 <odoo>
 
     <template id="association_checkout_ui_labels" inherit_id="website_sale.checkout">
-
-        <xpath expr="//*[normalize-space()='Payer maintenant']" position="replace">
-            <button type="submit" class="btn btn-primary">
+        <xpath expr="//button[@type='submit']" position="replace">
+            <button type="submit" class="btn btn-primary association_checkout_ui__primary">
                 Confirmer la commande
             </button>
         </xpath>
-
-        <xpath expr="//*[normalize-space()='Paiement']" position="replace">
-            <span>Confirmation</span>
-        </xpath>
-
     </template>
 
 </odoo>
