@@ -35,8 +35,9 @@ def test_get_checkout_invoice_status_without_invoice_is_none():
 
 
 def test_checkout_template_uses_association_labels():
-    template_path = Path(__file__).resolve().parents[1] / 'views' / 'checkout_templates.xml'
-    xml = template_path.read_text(encoding='utf-8')
-    assert 'Confirmer la commande' in xml
-    assert 'Confirmation' in xml
-    assert 'Payer maintenant' in xml or 'Payer maintenant' not in xml
+    js_path = Path(__file__).resolve().parents[1] / 'static' / 'src' / 'js' / 'checkout_labels.js'
+    js = js_path.read_text(encoding='utf-8')
+    assert 'Confirmer la commande' in js
+    assert 'Confirmation' in js
+    assert 'Payer maintenant' in js
+    assert 'Paiement' in js

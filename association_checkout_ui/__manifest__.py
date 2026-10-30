@@ -12,9 +12,12 @@
         'sale_management',
         'account',
     ],
-    'data': [
-        'views/checkout_templates.xml',
-    ],
+    'data': [],
+    'assets': {
+        'web.assets_frontend': [
+            'association_checkout_ui/static/src/js/checkout_labels.js',
+        ],
+    },
     'installable': True,
     'auto_install': False,
 }
