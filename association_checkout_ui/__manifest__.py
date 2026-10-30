@@ -6,6 +6,7 @@
     'license': 'AGPL-3',
     'author': 'Michael Champagne',
     'depends': [
+        'website',
         'website_sale',
         'payment',
         'sale_management',
