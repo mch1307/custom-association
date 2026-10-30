@@ -1,22 +1,57 @@
-document.addEventListener('DOMContentLoaded', function () {
-    function applyAssociationLabels() {
-        document.querySelectorAll('button[type="submit"], button.btn-primary').forEach(function (button) {
-            if ((button.textContent || '').trim() === 'Payer maintenant') {
-                button.textContent = 'Confirmer la commande';
-            }
-        });
+function normalizeText(value) {
+    return (value || '').replace(/\s+/g, ' ').trim();
+}
 
-        document.querySelectorAll('span, div, h2, p, strong, label').forEach(function (element) {
-            if ((element.textContent || '').trim() === 'Paiement') {
-                element.textContent = 'Confirmation';
-            }
-        });
-    }
+function replaceButtonLabel() {
+    const candidates = document.querySelectorAll('button[type="submit"], button.btn-primary, button[name*="pay"], button[id*="pay"]');
+    candidates.forEach(function (button) {
+        const current = normalizeText(button.textContent);
+        if (!current) {
+            return;
+        }
+        if (current.includes('Payer maintenant')) {
+            const labelNode = button.querySelector('span') || button;
+            labelNode.textContent = 'Confirmer la commande';
+        }
+    });
+}
 
+function replaceStepLabel() {
+    document.querySelectorAll('span, div, h2, p, strong, label, li, a').forEach(function (element) {
+        if (normalizeText(element.textContent) === 'Paiement') {
+            element.textContent = 'Confirmation';
+        }
+    });
+}
+
+function applyAssociationLabels() {
+    replaceButtonLabel();
+    replaceStepLabel();
+}
+
+function bootstrapAssociationLabels() {
     applyAssociationLabels();
 
     const observer = new MutationObserver(function () {
         applyAssociationLabels();
     });
     observer.observe(document.body, { childList: true, subtree: true });
-});
+
+    // Odoo can inject checkout blocks after DOMContentLoaded; retry briefly.
+    let attempts = 0;
+    const intervalId = setInterval(function () {
+        attempts += 1;
+        applyAssociationLabels();
+        if (attempts >= 20) {
+            clearInterval(intervalId);
+        }
+    }, 300);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrapAssociationLabels);
+} else {
+    bootstrapAssociationLabels();
+}
+
+window.addEventListener('pageshow', applyAssociationLabels);
