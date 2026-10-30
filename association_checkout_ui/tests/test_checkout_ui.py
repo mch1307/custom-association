@@ -41,3 +41,5 @@ def test_checkout_template_uses_association_labels():
     assert 'Confirmation' in js
     assert 'Payer maintenant' in js
     assert 'Paiement' in js
+    assert 'Commander' in js
+    assert "current === 'Payer'" in js

@@ -3,7 +3,9 @@ function normalizeText(value) {
 }
 
 function replaceButtonLabel() {
-    const candidates = document.querySelectorAll('button[type="submit"], button.btn-primary, button[name*="pay"], button[id*="pay"]');
+    const candidates = document.querySelectorAll(
+        'button[type="submit"], button.btn-primary, button[name*="pay"], button[id*="pay"], a.btn-primary, a[name*="pay"], a[id*="pay"]'
+    );
     candidates.forEach(function (button) {
         const current = normalizeText(button.textContent);
         if (!current) {
@@ -12,6 +14,11 @@ function replaceButtonLabel() {
         if (current.includes('Payer maintenant')) {
             const labelNode = button.querySelector('span') || button;
             labelNode.textContent = 'Confirmer la commande';
+            return;
+        }
+        if (current === 'Payer') {
+            const labelNode = button.querySelector('span') || button;
+            labelNode.textContent = 'Commander';
         }
     });
 }
