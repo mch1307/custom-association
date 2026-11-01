@@ -46,12 +46,57 @@ if http and getattr(http, 'route', None):
             manager = partner.parent_id or partner
             return (manager | manager.child_ids).filtered(lambda p: p.active).ids
 
+        @staticmethod
+        def order_has_active_lines(order):
+            lines = getattr(order, 'order_line', None) or []
+            if not lines:
+                return False
+            for line in lines:
+                qty = getattr(line, 'product_uom_qty', 0) or 0
+                try:
+                    qty = float(qty)
+                except (TypeError, ValueError):
+                    continue
+                if qty > 0:
+                    return True
+            return False
+
+        @classmethod
+        def should_cleanup_empty_draft_order(cls, order):
+            if not order:
+                return False
+            order_state = getattr(order, 'state', False)
+            if order_state not in ('draft', 'sent'):
+                return False
+            if cls.order_has_active_lines(order):
+                return False
+            return True
+
+        @classmethod
+        def cleanup_empty_draft_order(cls, order):
+            if not cls.should_cleanup_empty_draft_order(order):
+                return False
+
+            try:
+                if hasattr(order, 'sudo'):
+                    order = order.sudo()
+                if hasattr(order, 'unlink'):
+                    order.unlink()
+                elif hasattr(order, 'action_cancel'):
+                    order.action_cancel()
+                return True
+            except Exception:
+                return False
+
         @http.route('/association_family/cart/line_participants', type='json', auth='public', website=True)
         def association_family_set_line_participants(self, line_id, participant_ids=None, **kwargs):
             if request.env.user._is_public():
                 return {'ok': False, 'error': 'Authentication required'}
 
             order = request.website.sale_get_order()
+            if self.should_cleanup_empty_draft_order(order):
+                self.cleanup_empty_draft_order(order)
+                return {'ok': False, 'error': 'Cart is empty'}
             if not order:
                 return {'ok': False, 'error': 'No cart order'}
 

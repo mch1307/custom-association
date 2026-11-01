@@ -56,6 +56,31 @@ def test_is_event_line_true_for_event_or_ticket():
     assert not controller.is_event_line(simple_line)
 
 
+def test_should_cleanup_empty_draft_order_when_cart_has_no_lines():
+    module = _load_controller_module()
+    controller = module.AssociationFamilyWebsiteSale
+
+    class FakeOrder:
+        state = 'draft'
+        order_line = []
+
+    assert controller.should_cleanup_empty_draft_order(FakeOrder())
+
+
+def test_should_not_cleanup_quoted_order_with_real_lines():
+    module = _load_controller_module()
+    controller = module.AssociationFamilyWebsiteSale
+
+    class FakeLine:
+        product_uom_qty = 1
+
+    class FakeOrder:
+        state = 'draft'
+        order_line = [FakeLine()]
+
+    assert not controller.should_cleanup_empty_draft_order(FakeOrder())
+
+
 def test_confirmation_template_contains_participant_summary_block():
     template_path = Path(__file__).resolve().parents[1] / 'views' / 'website_event_confirmation_templates.xml'
     xml = template_path.read_text(encoding='utf-8')

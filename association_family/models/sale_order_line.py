@@ -74,13 +74,36 @@ class SaleOrderLine(models.Model):
             return participant_ids[-1]
         return default_member_id
 
+    @staticmethod
+    def resolve_member_id(vals, order_partner_id):
+        if vals.get('member_id'):
+            return vals['member_id']
+        if vals.get('order_partner_id'):
+            return vals['order_partner_id']
+        if order_partner_id:
+            return order_partner_id
+        return False
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             if vals.get('member_id'):
                 continue
-            if vals.get('order_partner_id'):
-                vals['member_id'] = vals['order_partner_id']
+
+            order_partner_id = vals.get('order_partner_id')
+            if not order_partner_id and vals.get('order_id'):
+                order_id = vals['order_id']
+                if hasattr(order_id, 'partner_id'):
+                    order_partner_id = order_id.partner_id.id if getattr(order_id.partner_id, 'id', False) else order_id.partner_id
+                elif isinstance(order_id, int):
+                    try:
+                        order = self.env['sale.order'].sudo().browse(order_id)
+                    except Exception:
+                        order = False
+                    if order and getattr(order, 'partner_id', False):
+                        order_partner_id = order.partner_id.id
+
+            vals['member_id'] = self.resolve_member_id(vals, order_partner_id)
         return super().create(vals_list)
 
     @api.constrains('member_id', 'order_partner_id')

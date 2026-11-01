@@ -64,6 +64,13 @@ def test_pick_event_participant_id_uses_selected_participants_then_fallback():
     assert picker([], 10, 0) == 10
 
 
+def test_sale_order_line_resolves_member_from_order_partner_when_missing():
+    order_partner_id = 42
+    vals = {'order_id': 7}
+    assert sale_order_line_module.SaleOrderLine.resolve_member_id(vals, order_partner_id) == order_partner_id
+    assert sale_order_line_module.SaleOrderLine.resolve_member_id({'member_id': 99}, order_partner_id) == 99
+
+
 def test_membership_end_date_adds_months():
     end_date = account_move_module.AccountMove.compute_membership_end_date(date(2026, 1, 1), 12)
     assert end_date >= date(2026, 12, 25)
