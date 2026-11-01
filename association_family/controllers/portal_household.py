@@ -6,7 +6,7 @@ except (ImportError, ModuleNotFoundError):
     request = None
 
 
-if http and request and getattr(http, 'Controller', None):
+if http and getattr(http, 'Controller', None):
     class AssociationFamilyPortal(http.Controller):
 
         def _current_partner(self):
@@ -58,7 +58,6 @@ if http and request and getattr(http, 'Controller', None):
                     'birthdate_date': post.get('birthdate_date') or False,
                     'x_household_role': post.get('x_household_role') or 'other',
                     'x_costume_size': (post.get('x_costume_size') or '').strip(),
-                    'x_sport_notes': (post.get('x_sport_notes') or '').strip(),
                     'parent_id': partner.id,
                 }
                 if vals['name']:
@@ -91,7 +90,6 @@ if http and request and getattr(http, 'Controller', None):
                     'birthdate_date': post.get('birthdate_date') or False,
                     'x_household_role': post.get('x_household_role') or 'other',
                     'x_costume_size': (post.get('x_costume_size') or '').strip(),
-                    'x_sport_notes': (post.get('x_sport_notes') or '').strip(),
                 }
                 member.sudo().write(vals)
                 return request.redirect('/my/household')

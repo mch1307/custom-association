@@ -17,7 +17,6 @@
                         </group>
                         <group>
                             <field name="x_costume_size"/>
-                            <field name="x_sport_notes"/>
                         </group>
                     </group>
                 </page>

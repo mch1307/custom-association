@@ -49,38 +49,49 @@ class ResPartner(models.Model):
 
     x_household_role = fields.Selection(
         [
-            ('responsible', 'Responsible'),
-            ('partner', 'Partner'),
-            ('child', 'Child'),
-            ('other', 'Other'),
+            ('responsible', 'Responsable'),
+            ('partner', 'Partenaire'),
+            ('child', 'Enfant'),
+            ('other', 'Autre'),
         ],
         string='Household Role',
         default='other',
     )
     x_membership_status = fields.Selection(
         [
-            ('inactive', 'Inactive'),
-            ('active', 'Active'),
-            ('expired', 'Expired'),
-            ('retired', 'Former'),
+            ('inactive', 'Inactif'),
+            ('active', 'Actif'),
+            ('expired', 'Expiré'),
+            ('retired', 'Ancien'),
         ],
-        string='Membership Status',
+        string='Statut membre',
         default='inactive',
     )
-    x_membership_end_date = fields.Date(string='Membership End Date')
+    x_membership_end_date = fields.Date(string='Date fin adhésion')
     x_household_manager_id = fields.Many2one(
         'res.partner',
-        string='Household Manager',
+        string='Responsable du ménage',
         compute='_compute_household_manager_id',
         store=True,
     )
     x_household_size = fields.Integer(
-        string='Household Size',
+        string='Taille du ménage',
         compute='_compute_household_size',
         store=False,
     )
-    x_costume_size = fields.Char(string='Costume Size')
-    x_sport_notes = fields.Text(string='Sport Notes')
+    x_costume_size = fields.Selection(
+        [
+            ('XS', 'XS'),
+            ('S', 'S'),
+            ('M', 'M'),
+            ('L', 'L'),
+            ('XL', 'XL'),
+            ('2XL', '2XL'),
+            ('3XL', '3XL'),
+            ('4XL', '4XL'),
+        ],
+        string='Taille du costume',
+    )
 
     @staticmethod
     def compute_household_size_flags(active_flags):

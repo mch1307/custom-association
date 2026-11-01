@@ -83,11 +83,17 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Costume size</label>
-                        <input type="text" name="x_costume_size" class="form-control" t-att-value="member.x_costume_size if member else ''"/>
-                    </div>
-                    <div class="col-md-12">
-                        <label class="form-label">Sport notes</label>
-                        <textarea name="x_sport_notes" class="form-control" rows="4"><t t-out="member.x_sport_notes if member else ''"/></textarea>
+                        <select name="x_costume_size" class="form-select">
+                            <option value="" t-att-selected="not member or not member.x_costume_size">Select a size</option>
+                            <option value="XS" t-att-selected="member and member.x_costume_size == 'XS'">XS</option>
+                            <option value="S" t-att-selected="member and member.x_costume_size == 'S'">S</option>
+                            <option value="M" t-att-selected="member and member.x_costume_size == 'M'">M</option>
+                            <option value="L" t-att-selected="member and member.x_costume_size == 'L'">L</option>
+                            <option value="XL" t-att-selected="member and member.x_costume_size == 'XL'">XL</option>
+                            <option value="2XL" t-att-selected="member and member.x_costume_size == '2XL'">2XL</option>
+                            <option value="3XL" t-att-selected="member and member.x_costume_size == '3XL'">3XL</option>
+                            <option value="4XL" t-att-selected="member and member.x_costume_size == '4XL'">4XL</option>
+                        </select>
                     </div>
                     <div class="col-12 d-flex gap-2">
                         <button type="submit" class="btn btn-primary">Save</button>

@@ -8,7 +8,7 @@ except (ImportError, ModuleNotFoundError):
     WebsiteSale = object
 
 
-if http and request:
+if http and getattr(http, 'route', None):
     class AssociationFamilyWebsiteSale(WebsiteSale):
 
         @staticmethod
