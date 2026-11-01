@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="portal_my_home_household_entry" inherit_id="portal.portal_my_home" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <a t-if="request.env.user.partner_id and not request.env.user.partner_id.parent_id"
+               href="/my/household"
+               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <span>My household</span>
+                <span class="badge rounded-pill text-bg-secondary"
+                      t-out="1 + len(request.env.user.partner_id.child_ids.filtered(lambda p: p.active))"/>
+            </a>
+        </xpath>
+    </template>
+
+    <template id="portal_my_household" name="Portal Household">
+        <t t-call="website.layout">
+            <div class="container py-4">
+                <h1 class="mb-3">My household</h1>
+                <div class="mb-3">
+                    <a href="/my/household/new" class="btn btn-primary">Add member</a>
+                </div>
+                <div class="list-group">
+                    <t t-foreach="members" t-as="member">
+                        <div class="list-group-item d-flex justify-content-between align-items-start">
+                            <div>
+                                <div class="fw-bold" t-out="member.name"/>
+                                <div class="text-muted" t-out="member.x_household_role or 'other'"/>
+                                <div>
+                                    Membership: <span t-out="member.x_membership_status or 'inactive'"/>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a t-att-href="'/my/household/%s' % member.id" class="btn btn-outline-primary btn-sm">Edit</a>
+                                <form t-if="member != manager" t-att-action="'/my/household/%s/archive' % member.id" method="post">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    <button type="submit" class="btn btn-outline-warning btn-sm">Archive</button>
+                                </form>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_household_member_form" name="Portal Household Member Form">
+        <t t-call="website.layout">
+            <div class="container py-4">
+                <h1 class="mb-3">
+                    <t t-if="member">Edit member</t>
+                    <t t-else="">Add member</t>
+                </h1>
+                <form method="post" class="row g-3">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="col-md-6">
+                        <label class="form-label">Last name</label>
+                        <input type="text" name="name" class="form-control" t-att-value="member.name if member else ''" required="required"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">First name</label>
+                        <input type="text" name="firstname" class="form-control" t-att-value="member.firstname if member else ''"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control" t-att-value="member.email if member else ''"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Phone</label>
+                        <input type="text" name="phone" class="form-control" t-att-value="member.phone if member else ''"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Birthdate</label>
+                        <input type="date" name="birthdate_date" class="form-control" t-att-value="member.birthdate_date if member else ''"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Household role</label>
+                        <select name="x_household_role" class="form-select">
+                            <option value="partner" t-att-selected="member and member.x_household_role == 'partner'">Partner</option>
+                            <option value="child" t-att-selected="member and member.x_household_role == 'child'">Child</option>
+                            <option value="other" t-att-selected="not member or member.x_household_role == 'other'">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Costume size</label>
+                        <input type="text" name="x_costume_size" class="form-control" t-att-value="member.x_costume_size if member else ''"/>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label">Sport notes</label>
+                        <textarea name="x_sport_notes" class="form-control" rows="4"><t t-out="member.x_sport_notes if member else ''"/></textarea>
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                        <a href="/my/household" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+
+</odoo>

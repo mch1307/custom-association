@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="group_household_responsible" model="res.groups">
+        <field name="name">Household Responsible</field>
+        <field name="category_id" ref="base.module_category_website"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+    <record id="rule_household_responsible_partner_access" model="ir.rule">
+        <field name="name">Household Responsible - Partner Access</field>
+        <field name="model_id" ref="base.model_res_partner"/>
+        <field name="groups" eval="[(4, ref('association_family.group_household_responsible'))]"/>
+        <field name="domain_force">['|', ('id', '=', user.partner_id.id), ('parent_id', '=', user.partner_id.id)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+</odoo>
