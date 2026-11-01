@@ -4,7 +4,7 @@
     <template id="association_family_cart_event_participants"
               inherit_id="website_sale.cart"
               priority="30">
-        <xpath expr="//div[@id='o_wsale_cart_total']" position="before">
+        <xpath expr="." position="inside">
             <t t-if="website_sale_order and not request.env.user._is_public()">
                 <t t-set="manager" t-value="website_sale_order.partner_id.parent_id or website_sale_order.partner_id"/>
                 <t t-set="household_members" t-value="(manager | manager.child_ids).filtered(lambda p: p.active)"/>

@@ -4,7 +4,7 @@
     <template id="association_family_payment_confirmation_participants"
               inherit_id="website_sale.payment_confirmation_status"
               priority="40">
-        <xpath expr="//div[@id='o_payment_confirmation_status']" position="inside">
+        <xpath expr="." position="inside">
             <t t-if="order">
                 <t t-set="event_lines" t-value="order.order_line.filtered(lambda l: (l._fields.get('event_id') and l.event_id) or (l._fields.get('event_ticket_id') and l.event_ticket_id))"/>
                 <div t-if="event_lines" class="alert alert-secondary mt-3">
