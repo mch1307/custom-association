@@ -25,9 +25,14 @@
                         <div class="list-group-item d-flex justify-content-between align-items-start">
                             <div>
                                 <div class="fw-bold" t-out="member.name"/>
-                                <div class="text-muted" t-out="member.x_household_role or 'other'"/>
+                                <div class="text-muted">
+                                    <t t-if="has_household_role_field" t-out="member.x_household_role or 'other'"/>
+                                    <t t-else="">other</t>
+                                </div>
                                 <div>
-                                    Membership: <span t-out="member.x_membership_status or 'inactive'"/>
+                                    Membership:
+                                    <span t-if="has_membership_status_field" t-out="member.x_membership_status or 'inactive'"/>
+                                    <span t-else="">inactive</span>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
@@ -72,11 +77,11 @@
                         <label class="form-label">Phone</label>
                         <input type="text" name="phone" class="form-control" t-att-value="member.phone if member else ''"/>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" t-if="has_birthdate_field">
                         <label class="form-label">Birthdate</label>
-                        <input type="date" name="birthdate_date" class="form-control" t-att-value="member.birthdate_date if member else ''"/>
+                        <input type="date" name="birthdate_date" class="form-control" t-att-value="member.birthdate_date if member and has_birthdate_field else ''"/>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" t-if="has_household_role_field">
                         <label class="form-label">Household role</label>
                         <select name="x_household_role" class="form-select">
                             <option value="partner" t-att-selected="member and member.x_household_role == 'partner'">Partner</option>
@@ -84,7 +89,7 @@
                             <option value="other" t-att-selected="not member or member.x_household_role == 'other'">Other</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" t-if="has_costume_size_field">
                         <label class="form-label">Costume size</label>
                         <select name="x_costume_size" class="form-select">
                             <option value="" t-att-selected="not member or not member.x_costume_size">Select a size</option>

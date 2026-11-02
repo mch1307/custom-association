@@ -14,17 +14,43 @@ if http and getattr(http, 'Controller', None):
             return 'firstname' in getattr(partner_model, '_fields', {})
 
         @staticmethod
-        def _build_member_vals(post, include_firstname=False, parent_id=None):
+        def _partner_supports_birthdate(partner_model):
+            return 'birthdate_date' in getattr(partner_model, '_fields', {})
+
+        @staticmethod
+        def _partner_supports_household_role(partner_model):
+            return 'x_household_role' in getattr(partner_model, '_fields', {})
+
+        @staticmethod
+        def _partner_supports_costume_size(partner_model):
+            return 'x_costume_size' in getattr(partner_model, '_fields', {})
+
+        @staticmethod
+        def _partner_supports_membership_status(partner_model):
+            return 'x_membership_status' in getattr(partner_model, '_fields', {})
+
+        @staticmethod
+        def _build_member_vals(
+            post,
+            include_firstname=False,
+            include_birthdate=False,
+            include_household_role=False,
+            include_costume_size=False,
+            parent_id=None,
+        ):
             vals = {
                 'name': (post.get('name') or '').strip(),
                 'email': (post.get('email') or '').strip(),
                 'phone': (post.get('phone') or '').strip(),
-                'birthdate_date': post.get('birthdate_date') or False,
-                'x_household_role': post.get('x_household_role') or 'other',
-                'x_costume_size': (post.get('x_costume_size') or '').strip(),
             }
             if include_firstname:
                 vals['firstname'] = (post.get('firstname') or '').strip()
+            if include_birthdate:
+                vals['birthdate_date'] = post.get('birthdate_date') or False
+            if include_household_role:
+                vals['x_household_role'] = post.get('x_household_role') or 'other'
+            if include_costume_size:
+                vals['x_costume_size'] = (post.get('x_costume_size') or '').strip()
             if parent_id:
                 vals['parent_id'] = parent_id
             return vals
@@ -35,6 +61,8 @@ if http and getattr(http, 'Controller', None):
         def _is_household_responsible(self, partner):
             if not partner or partner.parent_id:
                 return False
+            if 'x_household_role' not in getattr(partner, '_fields', {}):
+                return True
             if not partner.x_household_role:
                 return True
             return partner.x_household_role == 'responsible'
@@ -56,10 +84,14 @@ if http and getattr(http, 'Controller', None):
             if not self._is_household_responsible(partner):
                 return request.redirect('/my')
 
+            partner_model = request.env['res.partner']
+
             values = {
                 'page_name': 'household',
                 'manager': partner,
                 'members': self._get_household_members(partner),
+                'has_household_role_field': self._partner_supports_household_role(partner_model),
+                'has_membership_status_field': self._partner_supports_membership_status(partner_model),
             }
             return request.render('association_family.portal_my_household', values)
 
@@ -71,11 +103,17 @@ if http and getattr(http, 'Controller', None):
 
             partner_model = request.env['res.partner']
             has_firstname_field = self._partner_supports_firstname(partner_model)
+            has_birthdate_field = self._partner_supports_birthdate(partner_model)
+            has_household_role_field = self._partner_supports_household_role(partner_model)
+            has_costume_size_field = self._partner_supports_costume_size(partner_model)
 
             if request.httprequest.method == 'POST':
                 vals = self._build_member_vals(
                     post,
                     include_firstname=has_firstname_field,
+                    include_birthdate=has_birthdate_field,
+                    include_household_role=has_household_role_field,
+                    include_costume_size=has_costume_size_field,
                     parent_id=partner.id,
                 )
                 if vals['name']:
@@ -87,6 +125,9 @@ if http and getattr(http, 'Controller', None):
                 'manager': partner,
                 'member': False,
                 'has_firstname_field': has_firstname_field,
+                'has_birthdate_field': has_birthdate_field,
+                'has_household_role_field': has_household_role_field,
+                'has_costume_size_field': has_costume_size_field,
             }
             return request.render('association_family.portal_household_member_form', values)
 
@@ -98,13 +139,22 @@ if http and getattr(http, 'Controller', None):
 
             partner_model = request.env['res.partner']
             has_firstname_field = self._partner_supports_firstname(partner_model)
+            has_birthdate_field = self._partner_supports_birthdate(partner_model)
+            has_household_role_field = self._partner_supports_household_role(partner_model)
+            has_costume_size_field = self._partner_supports_costume_size(partner_model)
 
             member = self._get_member_for_manager(partner, member_id)
             if not member:
                 return request.redirect('/my/household')
 
             if request.httprequest.method == 'POST':
-                vals = self._build_member_vals(post, include_firstname=has_firstname_field)
+                vals = self._build_member_vals(
+                    post,
+                    include_firstname=has_firstname_field,
+                    include_birthdate=has_birthdate_field,
+                    include_household_role=has_household_role_field,
+                    include_costume_size=has_costume_size_field,
+                )
                 member.sudo().write(vals)
                 return request.redirect('/my/household')
 
@@ -113,6 +163,9 @@ if http and getattr(http, 'Controller', None):
                 'manager': partner,
                 'member': member,
                 'has_firstname_field': has_firstname_field,
+                'has_birthdate_field': has_birthdate_field,
+                'has_household_role_field': has_household_role_field,
+                'has_costume_size_field': has_costume_size_field,
             }
             return request.render('association_family.portal_household_member_form', values)
 
