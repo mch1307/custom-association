@@ -54,12 +54,15 @@
                 <form method="post" class="row g-3">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                     <div class="col-md-6">
-                        <label class="form-label">Last name</label>
+                        <label class="form-label">
+                            <t t-if="has_firstname_field">Last name</t>
+                            <t t-else="">Name</t>
+                        </label>
                         <input type="text" name="name" class="form-control" t-att-value="member.name if member else ''" required="required"/>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" t-if="has_firstname_field">
                         <label class="form-label">First name</label>
-                        <input type="text" name="firstname" class="form-control" t-att-value="member.firstname if member else ''"/>
+                        <input type="text" name="firstname" class="form-control" t-att-value="member.firstname if member and has_firstname_field else ''"/>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Email</label>
