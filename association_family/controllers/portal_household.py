@@ -5,8 +5,17 @@ except (ImportError, ModuleNotFoundError):
     http = None
     request = None
 
+from urllib.parse import quote
+
 
 class _AssociationFamilyPortalBase:
+
+    @staticmethod
+    def _build_login_redirect_url(target=None):
+        redirect_target = (target or '/my').strip() or '/my'
+        if not redirect_target.startswith('/'):
+            redirect_target = '/my'
+        return '/web/login?redirect=%s' % quote(redirect_target, safe='')
 
     @staticmethod
     def _partner_supports_firstname(partner_model):
@@ -80,6 +89,11 @@ class _AssociationFamilyPortalBase:
 
 if http and getattr(http, 'Controller', None):
     class AssociationFamilyPortal(http.Controller, _AssociationFamilyPortalBase):
+
+        @http.route('/association/login', type='http', auth='public', website=True)
+        def association_public_login(self, redirect=None, next=None, **kwargs):
+            target = redirect or next or '/my'
+            return request.redirect(self._build_login_redirect_url(target))
 
         @http.route('/my/household', type='http', auth='user', website=True)
         def portal_my_household(self, **kwargs):

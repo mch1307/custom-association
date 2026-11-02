@@ -143,3 +143,24 @@ def test_build_member_vals_includes_custom_fields_when_supported():
     assert vals['name'] == 'Doe'
     assert vals['x_household_role'] == 'child'
     assert vals['x_costume_size'] == 'M'
+
+
+def test_build_login_redirect_url_defaults_to_my():
+    module = _load_controller_module()
+    controller = module.AssociationFamilyPortal
+
+    assert controller._build_login_redirect_url() == '/web/login?redirect=%2Fmy'
+
+
+def test_build_login_redirect_url_accepts_safe_internal_path():
+    module = _load_controller_module()
+    controller = module.AssociationFamilyPortal
+
+    assert controller._build_login_redirect_url('/my/household') == '/web/login?redirect=%2Fmy%2Fhousehold'
+
+
+def test_build_login_redirect_url_rejects_external_target():
+    module = _load_controller_module()
+    controller = module.AssociationFamilyPortal
+
+    assert controller._build_login_redirect_url('https://example.com') == '/web/login?redirect=%2Fmy'
