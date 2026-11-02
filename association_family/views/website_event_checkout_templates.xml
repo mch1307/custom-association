@@ -5,7 +5,7 @@
               inherit_id="website_sale.cart"
               priority="30">
         <xpath expr="." position="inside">
-            <t t-if="website_sale_order and not request.env.user._is_public()">
+            <t t-if="website_sale_order and website_sale_order.partner_id">
                 <t t-set="manager" t-value="website_sale_order.partner_id.parent_id or website_sale_order.partner_id"/>
                 <t t-set="household_members" t-value="(manager | manager.child_ids).filtered(lambda p: p.active)"/>
                 <t t-set="event_lines" t-value="website_sale_order.order_line.filtered(lambda l: (l._fields.get('event_id') and l.event_id) or (l._fields.get('event_ticket_id') and l.event_ticket_id))"/>
@@ -14,13 +14,11 @@
                     <div class="card-body">
                         <h5 class="card-title">Membre beneficiaire</h5>
                         <p class="text-muted mb-3">Choisissez le membre du menage qui recoit chaque article du panier.</p>
-
                         <div class="d-flex flex-column gap-3">
                             <t t-foreach="website_sale_order.order_line" t-as="line">
                                 <div class="border rounded p-3">
                                     <div class="fw-bold mb-2" t-out="line.name"/>
-                                    <select class="form-select js_association_family_member"
-                                            t-att-data-line-id="line.id">
+                                    <select class="form-select js_association_family_member" t-att-data-line-id="line.id">
                                         <option value="">Sans beneficiaire</option>
                                         <t t-foreach="household_members" t-as="member">
                                             <option t-att-value="member.id"
@@ -38,14 +36,11 @@
                     <div class="card-body">
                         <h5 class="card-title">Participants du menage</h5>
                         <p class="text-muted mb-3">Selectionnez les membres pour chaque billet evenement.</p>
-
                         <div class="d-flex flex-column gap-3">
                             <t t-foreach="event_lines" t-as="line">
                                 <div class="border rounded p-3">
                                     <div class="fw-bold mb-2" t-out="line.name"/>
-                                    <select class="form-select js_association_family_participants"
-                                            multiple="multiple"
-                                            t-att-data-line-id="line.id">
+                                    <select class="form-select js_association_family_participants" multiple="multiple" t-att-data-line-id="line.id">
                                         <t t-foreach="household_members" t-as="member">
                                             <option t-att-value="member.id"
                                                     t-att-selected="member in line.event_participant_ids and 'selected' or None"
@@ -58,6 +53,43 @@
                     </div>
                 </div>
             </t>
+        </xpath>
+    </template>
+
+    <template id="association_family_cart_member_js" inherit_id="website_sale.cart" priority="30">
+        <xpath expr="." position="inside">
+            <script type="text/javascript">
+                document.addEventListener('change', function (event) {
+                    const target = event.target;
+                    if (!target || !target.classList) {
+                        return;
+                    }
+                    if (target.classList.contains('js_association_family_member')) {
+                        const lineId = target.dataset.lineId;
+                        const memberId = target.value || false;
+                        if (!lineId) {
+                            return;
+                        }
+                        fetch('/association_family/cart/line_member', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json; charset=utf-8'},
+                            body: JSON.stringify({line_id: Number(lineId), member_id: memberId})
+                        });
+                    }
+                    if (target.classList.contains('js_association_family_participants')) {
+                        const lineId = target.dataset.lineId;
+                        const selected = Array.from(target.selectedOptions).map(option => Number(option.value));
+                        if (!lineId) {
+                            return;
+                        }
+                        fetch('/association_family/cart/line_participants', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json; charset=utf-8'},
+                            body: JSON.stringify({line_id: Number(lineId), participant_ids: selected})
+                        });
+                    }
+                });
+            </script>
         </xpath>
     </template>
 

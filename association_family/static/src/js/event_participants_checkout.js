@@ -1,47 +1,38 @@
-odoo.define('association_family.event_participants_checkout', function (require) {
+odoo.define('association_family.event_participants_checkout', function () {
     'use strict';
 
-    const ajax = require('web.ajax');
-    const publicWidget = require('web.public.widget');
+    document.addEventListener('change', function (event) {
+        const target = event.target;
+        if (!target || !target.classList) {
+            return;
+        }
 
-    publicWidget.registry.AssociationFamilyEventParticipants = publicWidget.Widget.extend({
-        selector: '#association-family-event-participants, #association-family-cart-members',
-        events: {
-            'change .js_association_family_participants': '_onParticipantsChange',
-            'change .js_association_family_member': '_onMemberChange',
-        },
-
-        _onParticipantsChange: function (ev) {
-            const select = ev.currentTarget;
-            const lineId = parseInt(select.dataset.lineId, 10);
+        if (target.classList.contains('js_association_family_member')) {
+            const lineId = target.dataset.lineId;
+            const memberId = target.value || false;
             if (!lineId) {
                 return;
             }
 
-            const participantIds = [];
-            for (const option of select.options) {
-                if (option.selected) {
-                    participantIds.push(parseInt(option.value, 10));
-                }
-            }
-
-            ajax.jsonRpc('/association_family/cart/line_participants', 'call', {
-                line_id: lineId,
-                participant_ids: participantIds,
+            fetch('/association_family/cart/line_member', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json; charset=utf-8'},
+                body: JSON.stringify({line_id: Number(lineId), member_id: memberId}),
             });
-        },
+        }
 
-        _onMemberChange: function (ev) {
-            const select = ev.currentTarget;
-            const lineId = parseInt(select.dataset.lineId, 10);
+        if (target.classList.contains('js_association_family_participants')) {
+            const lineId = target.dataset.lineId;
+            const selected = Array.from(target.selectedOptions).map(option => Number(option.value));
             if (!lineId) {
                 return;
             }
 
-            ajax.jsonRpc('/association_family/cart/line_member', 'call', {
-                line_id: lineId,
-                member_id: select.value || false,
+            fetch('/association_family/cart/line_participants', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json; charset=utf-8'},
+                body: JSON.stringify({line_id: Number(lineId), participant_ids: selected}),
             });
-        },
+        }
     });
 });
