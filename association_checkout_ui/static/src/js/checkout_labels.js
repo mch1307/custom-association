@@ -2,10 +2,24 @@ function normalizeText(value) {
     return (value || '').replace(/\s+/g, ' ').trim();
 }
 
+function isCheckoutContext() {
+    const path = window.location.pathname || '';
+    if (path.startsWith('/shop/')) {
+        return true;
+    }
+    return Boolean(document.querySelector('.o_wsale_checkout_steps, form[action*="/shop/"]'));
+}
+
 function replaceButtonLabel() {
-    const candidates = document.querySelectorAll(
-        'button[type="submit"], button.btn-primary, button[name*="pay"], button[id*="pay"], a.btn-primary, a[name*="pay"], a[id*="pay"]'
-    );
+    const candidates = document.querySelectorAll([
+        '.o_wsale_payment_form button[type="submit"]',
+        '.o_wsale_payment_form .btn-primary',
+        'form[action*="/shop/payment"] button[type="submit"]',
+        'form[action*="/shop/payment"] .btn-primary',
+        'button[name*="pay"]',
+        'button[id*="pay"]',
+    ].join(', '));
+
     candidates.forEach(function (button) {
         const current = normalizeText(button.textContent);
         if (!current) {
@@ -24,7 +38,8 @@ function replaceButtonLabel() {
 }
 
 function replaceStepLabel() {
-    document.querySelectorAll('span, div, h2, p, strong, label, li, a').forEach(function (element) {
+    const stepNodes = document.querySelectorAll('.o_wsale_checkout_steps a, .o_wsale_checkout_steps span, .o_wsale_checkout_steps li');
+    stepNodes.forEach(function (element) {
         if (normalizeText(element.textContent) === 'Paiement') {
             element.textContent = 'Confirmation';
         }
@@ -37,6 +52,10 @@ function applyAssociationLabels() {
 }
 
 function bootstrapAssociationLabels() {
+    if (!isCheckoutContext()) {
+        return;
+    }
+
     applyAssociationLabels();
 
     const observer = new MutationObserver(function () {
@@ -61,4 +80,9 @@ if (document.readyState === 'loading') {
     bootstrapAssociationLabels();
 }
 
-window.addEventListener('pageshow', applyAssociationLabels);
+window.addEventListener('pageshow', function () {
+    if (!isCheckoutContext()) {
+        return;
+    }
+    applyAssociationLabels();
+});
