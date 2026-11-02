@@ -88,6 +88,40 @@ if http and getattr(http, 'route', None):
             except Exception:
                 return False
 
+        @http.route('/association_family/cart/line_member', type='json', auth='public', website=True)
+        def association_family_set_line_member(self, line_id, member_id=None, **kwargs):
+            if request.env.user._is_public():
+                return {'ok': False, 'error': 'Authentication required'}
+
+            order = request.website.sale_get_order()
+            if self.should_cleanup_empty_draft_order(order):
+                self.cleanup_empty_draft_order(order)
+                return {'ok': False, 'error': 'Cart is empty'}
+            if not order:
+                return {'ok': False, 'error': 'No cart order'}
+
+            try:
+                line_id_int = int(line_id)
+            except (TypeError, ValueError):
+                return {'ok': False, 'error': 'Invalid order line id'}
+
+            line = order.order_line.filtered(lambda l: l.id == line_id_int)[:1]
+            if not line:
+                return {'ok': False, 'error': 'Order line not found'}
+
+            allowed_ids = self._get_household_member_ids_for_order(order)
+            selected_id = False
+            if member_id not in (None, '', False):
+                try:
+                    selected_id = int(member_id)
+                except (TypeError, ValueError):
+                    return {'ok': False, 'error': 'Invalid member id'}
+                if selected_id not in allowed_ids:
+                    return {'ok': False, 'error': 'Selected member is not in the household'}
+
+            line.sudo().write({'member_id': selected_id or False})
+            return {'ok': True, 'line_id': line.id, 'member_id': selected_id or False}
+
         @http.route('/association_family/cart/line_participants', type='json', auth='public', website=True)
         def association_family_set_line_participants(self, line_id, participant_ids=None, **kwargs):
             if request.env.user._is_public():

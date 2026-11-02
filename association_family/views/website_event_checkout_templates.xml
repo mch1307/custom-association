@@ -10,6 +10,30 @@
                 <t t-set="household_members" t-value="(manager | manager.child_ids).filtered(lambda p: p.active)"/>
                 <t t-set="event_lines" t-value="website_sale_order.order_line.filtered(lambda l: (l._fields.get('event_id') and l.event_id) or (l._fields.get('event_ticket_id') and l.event_ticket_id))"/>
 
+                <div t-if="household_members and website_sale_order.order_line" id="association-family-cart-members" class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Membre beneficiaire</h5>
+                        <p class="text-muted mb-3">Choisissez le membre du menage qui recoit chaque article du panier.</p>
+
+                        <div class="d-flex flex-column gap-3">
+                            <t t-foreach="website_sale_order.order_line" t-as="line">
+                                <div class="border rounded p-3">
+                                    <div class="fw-bold mb-2" t-out="line.name"/>
+                                    <select class="form-select js_association_family_member"
+                                            t-att-data-line-id="line.id">
+                                        <option value="">Sans beneficiaire</option>
+                                        <t t-foreach="household_members" t-as="member">
+                                            <option t-att-value="member.id"
+                                                    t-att-selected="member == line.member_id and 'selected' or None"
+                                                    t-out="member.name"/>
+                                        </t>
+                                    </select>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
                 <div t-if="household_members and event_lines" id="association-family-event-participants" class="card mb-3">
                     <div class="card-body">
                         <h5 class="card-title">Participants du menage</h5>
