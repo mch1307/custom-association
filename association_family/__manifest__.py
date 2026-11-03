@@ -1,6 +1,6 @@
 {
     'name': 'Association Family',
-    'version': '19.0.1.0.0',
+    'version': '19.0.1.0.1',
     'summary': 'Manage household members and member-level attribution for association operations',
     'category': 'Website',
     'license': 'AGPL-3',
