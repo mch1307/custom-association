@@ -71,6 +71,22 @@ def test_sale_order_line_resolves_member_from_order_partner_when_missing():
     assert sale_order_line_module.SaleOrderLine.resolve_member_id({'member_id': 99}, order_partner_id) == 99
 
 
+def test_sale_order_line_resolve_member_id_from_line_prefers_existing_member():
+    line = types.SimpleNamespace(
+        member_id=types.SimpleNamespace(id=77),
+        order_partner_id=types.SimpleNamespace(id=42),
+    )
+    assert sale_order_line_module.SaleOrderLine.resolve_member_id_from_line(line) == 77
+
+
+def test_sale_order_line_resolve_member_id_from_line_falls_back_to_order_partner():
+    line = types.SimpleNamespace(
+        member_id=False,
+        order_partner_id=types.SimpleNamespace(id=42),
+    )
+    assert sale_order_line_module.SaleOrderLine.resolve_member_id_from_line(line) == 42
+
+
 def test_membership_end_date_adds_months():
     end_date = account_move_module.AccountMove.compute_membership_end_date(date(2026, 1, 1), 12)
     assert end_date >= date(2026, 12, 25)

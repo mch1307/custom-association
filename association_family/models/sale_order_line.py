@@ -84,6 +84,17 @@ class SaleOrderLine(models.Model):
             return order_partner_id
         return False
 
+    @staticmethod
+    def resolve_member_id_from_line(line):
+        member = getattr(line, 'member_id', False)
+        if member:
+            return member.id if getattr(member, 'id', False) else member
+
+        order_partner = getattr(line, 'order_partner_id', False)
+        if order_partner:
+            return order_partner.id if getattr(order_partner, 'id', False) else order_partner
+        return False
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -104,7 +115,15 @@ class SaleOrderLine(models.Model):
                         order_partner_id = order.partner_id.id
 
             vals['member_id'] = self.resolve_member_id(vals, order_partner_id)
-        return super().create(vals_list)
+        lines = super().create(vals_list)
+
+        # In one2many command creates, order_id can be injected by ORM after vals are built.
+        # Ensure every created line is still attributed to at least the billed customer.
+        for line in lines:
+            member_id = self.resolve_member_id_from_line(line)
+            if member_id and not line.member_id:
+                line.sudo().write({'member_id': member_id})
+        return lines
 
     @api.constrains('member_id', 'order_partner_id')
     def _check_member_belongs_to_household(self):
