@@ -5,7 +5,7 @@
               inherit_id="website_sale.cart"
               priority="30">
         <xpath expr="." position="inside">
-            <t t-set="association_order" t-value="request.website.sale_get_order()"/>
+            <t t-set="association_order" t-value="website_sale_order"/>
             <t t-if="association_order and association_order.partner_id">
                 <t t-set="manager" t-value="association_order.partner_id.parent_id or association_order.partner_id"/>
                 <t t-set="household_members" t-value="(manager | manager.child_ids).filtered(lambda p: p.active)"/>
