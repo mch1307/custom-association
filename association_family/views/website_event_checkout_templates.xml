@@ -5,8 +5,12 @@
               inherit_id="website_sale.cart"
               priority="30">
         <xpath expr="." position="inside">
-            <t t-set="association_order" t-value="website_sale_order"/>
-            <t t-if="association_order and association_order.partner_id">
+            <t t-set="association_order_id" t-value="request.session.get('sale_order_id')"/>
+            <t t-set="association_order" t-value="association_order_id and request.env['sale.order'].sudo().browse(association_order_id)"/>
+            <t t-if="association_order and association_order.exists() and association_order.partner_id">
+                <div t-if="request.env.user._is_public()" class="alert alert-info mb-3" id="association-family-login-required">
+                    Connectez-vous pour attribuer les produits a un membre du menage.
+                </div>
                 <t t-set="manager" t-value="association_order.partner_id.parent_id or association_order.partner_id"/>
                 <t t-set="household_members" t-value="(manager | manager.child_ids).filtered(lambda p: p.active)"/>
                 <t t-set="event_lines" t-value="association_order.order_line.filtered(lambda l: (l._fields.get('event_id') and l.event_id) or (l._fields.get('event_ticket_id') and l.event_ticket_id))"/>
