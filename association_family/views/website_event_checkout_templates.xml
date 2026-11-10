@@ -4,7 +4,7 @@
     <template id="association_family_cart_event_participants"
               inherit_id="website_sale.cart"
               priority="30">
-        <xpath expr="//main" position="inside">
+        <xpath expr="." position="inside">
             <t t-set="association_order_id" t-value="request.session.get('sale_order_id')"/>
             <t t-set="association_order" t-value="association_order_id and request.env['sale.order'].sudo().browse(association_order_id)"/>
             <div t-if="not association_order_id" class="alert alert-warning mb-3" id="association-family-no-session-order">
